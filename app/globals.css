@@ -1,26 +1,193 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --field: #07241c;
+  --monster: #0d3a2e;
+  --monster-light: #11483a;
+  --plate: #082a21;
+  --plate-deep: #051f18;
+  --chalk: #f2ecdb;
+  --chalk-dim: #c8c2ad;
+  --chalk-faint: rgba(242, 236, 219, 0.38);
+  --line: rgba(242, 236, 219, 0.16);
+  --line-strong: rgba(242, 236, 219, 0.32);
+  --gold: #e8b33c;
+  --gold-deep: #c2902a;
+  --scarlet: #e2543e;
+  --scarlet-dim: rgba(226, 84, 62, 0.55);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-field: var(--field);
+  --color-monster: var(--monster);
+  --color-monster-light: var(--monster-light);
+  --color-plate: var(--plate);
+  --color-plate-deep: var(--plate-deep);
+  --color-chalk: var(--chalk);
+  --color-chalk-dim: var(--chalk-dim);
+  --color-chalk-faint: var(--chalk-faint);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-gold: var(--gold);
+  --color-gold-deep: var(--gold-deep);
+  --color-scarlet: var(--scarlet);
+  --font-display: var(--font-graduate);
+  --font-body: var(--font-barlow);
+  --font-score: var(--font-spline-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  background: var(--field);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background:
+    /* vignette */
+    radial-gradient(120% 90% at 50% 0%, rgba(255, 244, 205, 0.05), transparent 55%),
+    radial-gradient(140% 120% at 50% 110%, rgba(0, 0, 0, 0.55), transparent 60%),
+    /* painted wall slats */
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 119px,
+      rgba(0, 0, 0, 0.13) 119px,
+      rgba(0, 0, 0, 0.13) 121px
+    ),
+    linear-gradient(180deg, var(--monster) 0%, var(--field) 100%);
+  color: var(--chalk);
+  font-family: var(--font-body), sans-serif;
+  min-height: 100vh;
+}
+
+/* film grain over everything */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  opacity: 0.5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='0 0.05'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+::selection {
+  background: var(--gold);
+  color: var(--plate-deep);
+}
+
+/* ---------- scoreboard plates ---------- */
+
+.plate {
+  background: linear-gradient(180deg, #0a2f25 0%, var(--plate) 45%, var(--plate-deep) 100%);
+  border: 1px solid var(--line);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 -6px 14px rgba(0, 0, 0, 0.45),
+    0 2px 10px rgba(0, 0, 0, 0.35);
+}
+
+.frame {
+  border: 1px solid var(--line-strong);
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.5),
+    inset 0 0 0 5px rgba(242, 236, 219, 0.05),
+    0 18px 50px rgba(0, 0, 0, 0.4);
+}
+
+.chalk-rule {
+  background: linear-gradient(90deg, transparent, var(--line-strong) 12%, var(--line-strong) 88%, transparent);
+  height: 1px;
+}
+
+/* ---------- type helpers ---------- */
+
+.display {
+  font-family: var(--font-display), serif;
+  letter-spacing: 0.04em;
+}
+
+.score {
+  font-family: var(--font-score), monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- animations ---------- */
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes flipIn {
+  0% {
+    opacity: 0;
+    transform: perspective(700px) rotateX(70deg);
+  }
+  60% {
+    opacity: 1;
+    transform: perspective(700px) rotateX(-12deg);
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(700px) rotateX(0deg);
+  }
+}
+
+@keyframes spinBall {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+
+.anim-rise {
+  animation: rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.anim-flip {
+  animation: flipIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transform-origin: top center;
+}
+
+.anim-blink {
+  animation: blink 1.6s ease-in-out infinite;
+}
+
+.spin {
+  animation: spinBall 0.9s linear infinite;
+}
+
+/* expandable game log */
+.gamelog {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.gamelog.open {
+  grid-template-rows: 1fr;
+}
+
+.gamelog > div {
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-rise,
+  .anim-flip {
+    animation: none;
+  }
+  .gamelog {
+    transition: none;
+  }
 }
